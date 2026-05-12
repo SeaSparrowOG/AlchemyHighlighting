@@ -1,8 +1,8 @@
 {
-  "name": "template-plugin",
+  "name": "alchemy-highlighting",
   "version-string": "1.0.0",
-  "description": "Template for SKSE plugin built using commonlib. MIT License by default.",
-  "homepage": "https://github.com/SeaSparrowOG/SKSE-Plugin-Template",
+  "description": "SKSE plugin that highlights ingredient effects during alchemy if they are stronger/weaker than average.",
+  "homepage": "https://github.com/SeaSparrowOG/AlchemyHighlighting",
   "license": "MIT",
   "dependencies": [
     "boost-stl-interfaces",
