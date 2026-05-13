@@ -7,9 +7,29 @@
 #undef GetObject
 
 namespace Hooks {
+	static bool IsEffectHarmful(RE::EffectSetting* effect) {
+		using EffectFlag = RE::EffectSetting::EffectSettingData::Flag;
+		static auto* magAlchHostile = RE::TESForm::LookupByEditorID<RE::BGSKeyword>("MagicAlchBeneficial"sv);
+		return !effect->HasKeyword(magAlchHostile) || effect->data.flags.any(EffectFlag::kHostile);
+	}
+
+	static bool PlayerKnowsEffect(RE::IngredientItem* ingredient, std::uint16_t index) {
+		auto& known = ingredient->gamedata.knownEffectFlags;
+		return (known & (std::uint16_t(1) << index)) > 0; // I hate this, but the compiler hates the simpler form so tomatoh tomahto.
+	}
+
 	static void ProcessIngredientIfNeeded(RE::GFxValue& a_itemInfo, 
 		RE::IngredientItem* a_ingredient) 
 	{
+		// These are only loaded once. I don't actually use the reload function in the INI holder,
+		// so maybe fine to cache?
+		static long beneficialStrong = Settings::INI::GetSetting<long>(Settings::INI::COLOR_BENEFICIAL_STRONG.data()).value_or(0x00FF00);
+		static long beneficialWeak = Settings::INI::GetSetting<long>(Settings::INI::COLOR_BENEFICIAL_WEAK.data()).value_or(0xFF0000);
+		static long harmfulStrong = Settings::INI::GetSetting<long>(Settings::INI::COLOR_HARMFUL_STRONG.data()).value_or(0x00FF00);
+		static long harmfulWeak = Settings::INI::GetSetting<long>(Settings::INI::COLOR_HARMFUL_WEAK.data()).value_or(0xFF0000);
+		static bool allowUnknown = Settings::INI::GetSetting<bool>(Settings::INI::ENABLE_UNKNOWN.data()).value_or(false);
+		static bool useSimpleIndicators = Settings::INI::GetSetting<bool>(Settings::INI::SIMPLE_INDICATORS.data()).value_or(false);
+
 		auto& alciEffects = a_ingredient->effects;
 		if (alciEffects.empty() || alciEffects.size() != 4) {
 			LOG_DEBUG("Size mismatch: {}"sv, alciEffects.size());
@@ -19,22 +39,32 @@ namespace Hooks {
 		using IndexType = int;
 		RE::GFxValue effectLabel;
 		for (IndexType i = 0; i < 4; ++i) {
+			if (!allowUnknown && !PlayerKnowsEffect(a_ingredient, static_cast<std::uint16_t>(i))) {
+				continue;
+			}
+
 			auto* currentEffect = alciEffects[i];
 			auto* currentBaseEffect = currentEffect ? currentEffect->baseEffect : nullptr;
 			if (!currentBaseEffect) {
 				LOG_DEBUG("No base effect."sv);
 				continue;
 			}
-
 			const float mag = currentEffect->GetMagnitude();
 			const float baseMag = IngredientData::GetAverageEffectMagnitude(currentBaseEffect);
 
 			int color = 0xFFFFFF;
-			if (mag < baseMag) {
-				color = 0xFF0000;
+			bool harmful = IsEffectHarmful(currentBaseEffect);
+			if (harmful && mag > baseMag) {
+				color = harmfulStrong;
 			}
-			else if (mag > baseMag) {
-				color = 0x00FF00;
+			else if (harmful && mag < baseMag) {
+				color = harmfulWeak;
+			}
+			else if (!harmful && mag > baseMag) {
+				color = beneficialStrong;
+			}
+			else if (!harmful && mag < baseMag) {
+				color = beneficialWeak;
 			}
 			else {
 				LOG_DEBUG("Effect is standard."sv);

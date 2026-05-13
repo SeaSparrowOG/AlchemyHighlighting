@@ -46,7 +46,7 @@ namespace Settings
 			bool OverrideSettings();
 		};
 
-		inline static constexpr const std::uint8_t EXPECTED_COUNT = 9u;
+		inline static constexpr const std::uint8_t EXPECTED_COUNT = 11u;
 		inline static constexpr const std::string_view COLOR_BENEFICIAL_STRONG = "Colors|iBeneficialStrong"sv;
 		inline static constexpr const std::string_view COLOR_BENEFICIAL_WEAK = "Colors|iBeneficialWeak"sv;
 		inline static constexpr const std::string_view COLOR_HARMFUL_STRONG = "Colors|iHarmfullStrong"sv;
@@ -58,6 +58,9 @@ namespace Settings
 		inline static constexpr const std::string_view ENABLED_MENUS_BARTER = "EnabledMenus|bEnableInBarter"sv;
 		inline static constexpr const std::string_view ENABLED_MENUS_GIFT = "EnabledMenus|bEnableInGift"sv;
 
+		inline static constexpr const std::string_view ENABLE_UNKNOWN = "General|bEnableForUnknownEffects"sv;
+		inline static constexpr const std::string_view SIMPLE_INDICATORS = "General|bUseSimpleIndicators"sv;
+
 		inline static constexpr const std::array<std::string_view, EXPECTED_COUNT> EXPECTED_SETTINGS = {
 			COLOR_BENEFICIAL_STRONG,
 			COLOR_BENEFICIAL_WEAK,
@@ -68,7 +71,10 @@ namespace Settings
 			ENABLED_MENUS_INVENTORY,
 			ENABLED_MENUS_CONTAINER,
 			ENABLED_MENUS_BARTER,
-			ENABLED_MENUS_GIFT
+			ENABLED_MENUS_GIFT,
+
+			ENABLE_UNKNOWN,
+			SIMPLE_INDICATORS
 		};
 
 		template <typename T>
