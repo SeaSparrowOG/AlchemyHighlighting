@@ -46,15 +46,41 @@ namespace Settings
 			bool OverrideSettings();
 		};
 
-		inline static constexpr const std::uint8_t EXPECTED_COUNT = 0;
+		inline static constexpr const std::uint8_t EXPECTED_COUNT = 9u;
+		inline static constexpr const std::string_view COLOR_BENEFICIAL_STRONG = "Colors|iBeneficialStrong"sv;
+		inline static constexpr const std::string_view COLOR_BENEFICIAL_WEAK = "Colors|iBeneficialWeak"sv;
+		inline static constexpr const std::string_view COLOR_HARMFUL_STRONG = "Colors|iHarmfullStrong"sv;
+		inline static constexpr const std::string_view COLOR_HARMFUL_WEAK = "Colors|iHarmfullWeak"sv;
+
+		inline static constexpr const std::string_view ENABLED_MENUS_ALCHEMY = "EnabledMenus|bEnableInAlchemy"sv;
+		inline static constexpr const std::string_view ENABLED_MENUS_INVENTORY = "EnabledMenus|bEnableInInventory"sv;
+		inline static constexpr const std::string_view ENABLED_MENUS_CONTAINER = "EnabledMenus|bEnableInContainer"sv;
+		inline static constexpr const std::string_view ENABLED_MENUS_BARTER = "EnabledMenus|bEnableInBarter"sv;
+		inline static constexpr const std::string_view ENABLED_MENUS_GIFT = "EnabledMenus|bEnableInGift"sv;
 
 		inline static constexpr const std::array<std::string_view, EXPECTED_COUNT> EXPECTED_SETTINGS = {
+			COLOR_BENEFICIAL_STRONG,
+			COLOR_BENEFICIAL_WEAK,
+			COLOR_HARMFUL_STRONG,
+			COLOR_HARMFUL_WEAK,
+
+			ENABLED_MENUS_ALCHEMY,
+			ENABLED_MENUS_INVENTORY,
+			ENABLED_MENUS_CONTAINER,
+			ENABLED_MENUS_BARTER,
+			ENABLED_MENUS_GIFT
 		};
 
 		template <typename T>
 		std::optional<T> GetSetting(const std::string& a_settingName) {
 			static auto* holder = Holder::GetSingleton();
 			return holder->GetStoredSetting<T>(a_settingName);
+		}
+
+		inline static bool ShouldInstallHook(const std::string& a_setting) {
+			static auto* holder = Holder::GetSingleton();
+			auto response = holder->GetStoredSetting<bool>(a_setting);
+			return response.value_or(true);
 		}
 	}
 }
