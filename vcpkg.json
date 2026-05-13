@@ -14,5 +14,11 @@
     "simpleini",
     "xbyak"
   ],
+  "overrides": [
+    {
+      "name": "xbyak",
+      "version": "7.23.1"
+    }
+  ],
   "builtin-baseline": "3909e67a639d426ea939d9bff77bfe1d10443476"
 }
