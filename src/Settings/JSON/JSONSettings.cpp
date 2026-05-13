@@ -36,6 +36,13 @@ namespace Settings::JSON
 		bool success = true;
 		for (const auto& path : paths) {
 			auto configName = path.substr(jsonFolder.size() + 1, path.size() - 1);
+
+#ifdef NDEBUG
+			if (configName.starts_with("_UnitTests_")) {
+				continue;
+			}
+#endif
+
 			logger::info("    >Reading config {}..."sv, configName);
 			Json::CharReaderBuilder builder;
 			builder["collectComments"] = false;

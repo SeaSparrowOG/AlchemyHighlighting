@@ -87,7 +87,11 @@ extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Load(const SKSE::LoadInterface * a_
 	messaging->RegisterListener(&MessageEventCallback);
 
 	if (!Settings::JSON::Preload()) {
+#ifdef NDEBUG
 		SKSE::stl::report_and_fail("Failed to preload JSON configs. Check the log for more information."sv);
+#else
+		logger::warn("Potentially loaded with bad JSON configs due to debug mode."sv);
+#endif
 	}
 	SECTION_SEPARATOR;
 	return true;
