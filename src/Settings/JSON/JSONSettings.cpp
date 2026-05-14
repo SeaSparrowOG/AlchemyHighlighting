@@ -87,6 +87,11 @@ namespace Settings::JSON
 		return success;
 	}
 
+	const Holder::ConfigMap& Holder::GetConfigs() const
+	{
+		return _configs;
+	}
+
 	void Holder::Release() {
 		_errors.clear();
 		_configs.clear();

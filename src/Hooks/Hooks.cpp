@@ -7,6 +7,22 @@
 #undef GetObject
 
 namespace Hooks {
+	static bool GetAssociatedEffectMag(RE::Effect* effect, RE::EffectSetting* base, float& mag) {
+		using EffectFlag = RE::EffectSetting::EffectSettingData::Flag;
+
+		auto& flags = base->data.flags;
+		if (flags.any(EffectFlag::kNoDuration) && flags.any(EffectFlag::kNoMagnitude)) {
+			return false;
+		}
+		else if (flags.any(EffectFlag::kNoMagnitude)) {
+			mag = static_cast<float>(effect->GetDuration());
+		}
+		else {
+			mag = effect->GetMagnitude();
+		}
+		return true;
+	}
+
 	static bool IsEffectHarmful(RE::EffectSetting* effect) {
 		using EffectFlag = RE::EffectSetting::EffectSettingData::Flag;
 		auto* magAlchHostile = RE::TESForm::LookupByEditorID<RE::BGSKeyword>("MagicAlchBeneficial"sv);
@@ -108,8 +124,8 @@ namespace Hooks {
 		val.SetMember("htmlText", htmlText);
 	}
 
-	static void ProcessIngredientIfNeeded(RE::GFxValue& a_itemInfo, 
-		RE::IngredientItem* a_ingredient) 
+	static void ProcessIngredientIfNeeded(RE::GFxValue& a_itemInfo,
+		RE::IngredientItem* a_ingredient)
 	{
 		long beneficialStrong = Settings::INI::GetSetting<long>(Settings::INI::COLOR_BENEFICIAL_STRONG.data()).value_or(0x00FF00);
 		long beneficialWeak = Settings::INI::GetSetting<long>(Settings::INI::COLOR_BENEFICIAL_WEAK.data()).value_or(0xFF0000);
@@ -119,7 +135,7 @@ namespace Hooks {
 		bool useSimpleIndicators = Settings::INI::GetSetting<bool>(Settings::INI::SIMPLE_INDICATORS.data()).value_or(false);
 		bool onlyWeak = Settings::INI::GetSetting<bool>(Settings::INI::ONLY_NEGATIVES.data()).value_or(false);
 		bool onlyStrong = Settings::INI::GetSetting<bool>(Settings::INI::ONLY_POSITIVES.data()).value_or(false);
-		
+
 		if (!PlayerHasNeededPerk()) {
 			return;
 		}
@@ -139,11 +155,17 @@ namespace Hooks {
 
 			auto* currentEffect = alciEffects[i];
 			auto* currentBaseEffect = currentEffect ? currentEffect->baseEffect : nullptr;
-			if (!currentBaseEffect) {
+			if (!currentBaseEffect || IngredientData::IsEffectIgnored(currentBaseEffect)) {
 				LOG_DEBUG("No base effect."sv);
 				continue;
 			}
-			const float mag = currentEffect->GetMagnitude();
+
+			float mag = 1.0f;
+			if (!GetAssociatedEffectMag(currentEffect, currentBaseEffect, mag)) {
+				LOG_DEBUG("{} does not scale."sv, clib_util::editorID::get_editorID(currentBaseEffect));
+				continue;
+			}
+
 			const float baseMag = IngredientData::GetAverageEffectMagnitude(currentBaseEffect);
 			if (mag == baseMag) { // Potentially could backfire due to float inaccuracy, but works for vanilla.
 				continue;

@@ -1,0 +1,6 @@
+{
+  "IgnoredEffects": [
+    "Skyrim.esm|0x109ADD", // Cure Poison
+    "Skyrim.esm|0x0AE722"  // Cure Disease
+  ]
+}
