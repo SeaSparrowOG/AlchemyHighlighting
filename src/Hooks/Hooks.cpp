@@ -9,7 +9,10 @@
 namespace Hooks {
 	static bool IsEffectHarmful(RE::EffectSetting* effect) {
 		using EffectFlag = RE::EffectSetting::EffectSettingData::Flag;
-		static auto* magAlchHostile = RE::TESForm::LookupByEditorID<RE::BGSKeyword>("MagicAlchBeneficial"sv);
+		auto* magAlchHostile = RE::TESForm::LookupByEditorID<RE::BGSKeyword>("MagicAlchBeneficial"sv);
+		if (!magAlchHostile) {
+			return false;
+		}
 		return !effect->HasKeyword(magAlchHostile) || effect->data.flags.any(EffectFlag::kHostile);
 	}
 
@@ -19,8 +22,8 @@ namespace Hooks {
 	}
 
 	static bool PlayerHasNeededPerk() {
-		static bool requirePerk = Settings::INI::GetSetting<bool>(Settings::INI::PERK_REQUIRED.data()).value_or(false);
-		static auto perkFormRaw = Settings::INI::GetSetting<std::string>(Settings::INI::PERK_NEEDED.data()).value_or("Skyrim.esm|0x58218");
+		bool requirePerk = Settings::INI::GetSetting<bool>(Settings::INI::PERK_REQUIRED.data()).value_or(false);
+		auto perkFormRaw = Settings::INI::GetSetting<std::string>(Settings::INI::PERK_NEEDED.data()).value_or("Skyrim.esm|0x58218");
 
 		if (!requirePerk) {
 			return true;
@@ -51,16 +54,16 @@ namespace Hooks {
 	}
 
 	static void HandleSimpleIndicator(RE::GFxValue& val, bool harmful, bool strong) {
-		static bool useAdditionalColors = Settings::INI::GetSetting<bool>(Settings::INI::SIMPLE_INDICATORS_COLORIZE.data()).value_or(false);
+		bool useAdditionalColors = Settings::INI::GetSetting<bool>(Settings::INI::SIMPLE_INDICATORS_COLORIZE.data()).value_or(false);
 		//static bool appendAsSuperscript = Settings::INI::GetSetting<bool>(Settings::INI::SIMPLE_INDICATORS_SUPERSCRIPT.data()).value_or(false);
-		static auto harmfulStrongText = Settings::INI::GetSetting<std::string>(Settings::INI::SIMPLE_INDICATORS_HARMFUL_STRONG.data()).value_or("[++]");
-		static auto harmfulWeakText = Settings::INI::GetSetting<std::string>(Settings::INI::SIMPLE_INDICATORS_HARMFUL_WEAK.data()).value_or("[--]");
-		static auto beneficialStrongText = Settings::INI::GetSetting<std::string>(Settings::INI::SIMPLE_INDICATORS_BENEFICIAL_STRONG.data()).value_or("[++]");
-		static auto beneficialWeakText = Settings::INI::GetSetting<std::string>(Settings::INI::SIMPLE_INDICATORS_BENEFICIAL_WEAK.data()).value_or("[--]");
-		static long beneficialStrong = Settings::INI::GetSetting<long>(Settings::INI::COLOR_BENEFICIAL_STRONG.data()).value_or(0x00FF00);
-		static long beneficialWeak = Settings::INI::GetSetting<long>(Settings::INI::COLOR_BENEFICIAL_WEAK.data()).value_or(0xFF0000);
-		static long harmfulStrong = Settings::INI::GetSetting<long>(Settings::INI::COLOR_HARMFUL_STRONG.data()).value_or(0x00FF00);
-		static long harmfulWeak = Settings::INI::GetSetting<long>(Settings::INI::COLOR_HARMFUL_WEAK.data()).value_or(0xFF0000);
+		auto harmfulStrongText = Settings::INI::GetSetting<std::string>(Settings::INI::SIMPLE_INDICATORS_HARMFUL_STRONG.data()).value_or("[++]");
+		auto harmfulWeakText = Settings::INI::GetSetting<std::string>(Settings::INI::SIMPLE_INDICATORS_HARMFUL_WEAK.data()).value_or("[--]");
+		auto beneficialStrongText = Settings::INI::GetSetting<std::string>(Settings::INI::SIMPLE_INDICATORS_BENEFICIAL_STRONG.data()).value_or("[++]");
+		auto beneficialWeakText = Settings::INI::GetSetting<std::string>(Settings::INI::SIMPLE_INDICATORS_BENEFICIAL_WEAK.data()).value_or("[--]");
+		long beneficialStrong = Settings::INI::GetSetting<long>(Settings::INI::COLOR_BENEFICIAL_STRONG.data()).value_or(0x00FF00);
+		long beneficialWeak = Settings::INI::GetSetting<long>(Settings::INI::COLOR_BENEFICIAL_WEAK.data()).value_or(0xFF0000);
+		long harmfulStrong = Settings::INI::GetSetting<long>(Settings::INI::COLOR_HARMFUL_STRONG.data()).value_or(0x00FF00);
+		long harmfulWeak = Settings::INI::GetSetting<long>(Settings::INI::COLOR_HARMFUL_WEAK.data()).value_or(0xFF0000);
 
 		RE::GFxValue htmlText;
 		RE::GFxValue text;
@@ -108,16 +111,14 @@ namespace Hooks {
 	static void ProcessIngredientIfNeeded(RE::GFxValue& a_itemInfo, 
 		RE::IngredientItem* a_ingredient) 
 	{
-		// These are only loaded once. I don't actually use the reload function in the INI holder,
-		// so maybe fine to cache?
-		static long beneficialStrong = Settings::INI::GetSetting<long>(Settings::INI::COLOR_BENEFICIAL_STRONG.data()).value_or(0x00FF00);
-		static long beneficialWeak = Settings::INI::GetSetting<long>(Settings::INI::COLOR_BENEFICIAL_WEAK.data()).value_or(0xFF0000);
-		static long harmfulStrong = Settings::INI::GetSetting<long>(Settings::INI::COLOR_HARMFUL_STRONG.data()).value_or(0x00FF00);
-		static long harmfulWeak = Settings::INI::GetSetting<long>(Settings::INI::COLOR_HARMFUL_WEAK.data()).value_or(0xFF0000);
-		static bool allowUnknown = Settings::INI::GetSetting<bool>(Settings::INI::ENABLE_UNKNOWN.data()).value_or(false);
-		static bool useSimpleIndicators = Settings::INI::GetSetting<bool>(Settings::INI::SIMPLE_INDICATORS.data()).value_or(false);
-		static bool onlyWeak = Settings::INI::GetSetting<bool>(Settings::INI::ONLY_NEGATIVES.data()).value_or(false);
-		static bool onlyStrong = Settings::INI::GetSetting<bool>(Settings::INI::ONLY_POSITIVES.data()).value_or(false);
+		long beneficialStrong = Settings::INI::GetSetting<long>(Settings::INI::COLOR_BENEFICIAL_STRONG.data()).value_or(0x00FF00);
+		long beneficialWeak = Settings::INI::GetSetting<long>(Settings::INI::COLOR_BENEFICIAL_WEAK.data()).value_or(0xFF0000);
+		long harmfulStrong = Settings::INI::GetSetting<long>(Settings::INI::COLOR_HARMFUL_STRONG.data()).value_or(0x00FF00);
+		long harmfulWeak = Settings::INI::GetSetting<long>(Settings::INI::COLOR_HARMFUL_WEAK.data()).value_or(0xFF0000);
+		bool allowUnknown = Settings::INI::GetSetting<bool>(Settings::INI::ENABLE_UNKNOWN.data()).value_or(false);
+		bool useSimpleIndicators = Settings::INI::GetSetting<bool>(Settings::INI::SIMPLE_INDICATORS.data()).value_or(false);
+		bool onlyWeak = Settings::INI::GetSetting<bool>(Settings::INI::ONLY_NEGATIVES.data()).value_or(false);
+		bool onlyStrong = Settings::INI::GetSetting<bool>(Settings::INI::ONLY_POSITIVES.data()).value_or(false);
 		
 		if (!PlayerHasNeededPerk()) {
 			return;
