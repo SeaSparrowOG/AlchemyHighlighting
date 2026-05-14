@@ -18,6 +18,61 @@ namespace Hooks {
 		return (known & (std::uint16_t(1) << index)) > 0; // I hate this, but the compiler hates the simpler form so tomatoh tomahto.
 	}
 
+	static void HandleSimpleIndicator(RE::GFxValue& val, bool harmful, bool strong) {
+		static bool useAdditionalColors = Settings::INI::GetSetting<bool>(Settings::INI::SIMPLE_INDICATORS_COLORIZE.data()).value_or(false);
+		//static bool appendAsSuperscript = Settings::INI::GetSetting<bool>(Settings::INI::SIMPLE_INDICATORS_SUPERSCRIPT.data()).value_or(false);
+		static auto harmfulStrongText = Settings::INI::GetSetting<std::string>(Settings::INI::SIMPLE_INDICATORS_HARMFUL_STRONG.data()).value_or("[++]");
+		static auto harmfulWeakText = Settings::INI::GetSetting<std::string>(Settings::INI::SIMPLE_INDICATORS_HARMFUL_WEAK.data()).value_or("[--]");
+		static auto beneficialStrongText = Settings::INI::GetSetting<std::string>(Settings::INI::SIMPLE_INDICATORS_BENEFICIAL_STRONG.data()).value_or("[++]");
+		static auto beneficialWeakText = Settings::INI::GetSetting<std::string>(Settings::INI::SIMPLE_INDICATORS_BENEFICIAL_WEAK.data()).value_or("[--]");
+		static long beneficialStrong = Settings::INI::GetSetting<long>(Settings::INI::COLOR_BENEFICIAL_STRONG.data()).value_or(0x00FF00);
+		static long beneficialWeak = Settings::INI::GetSetting<long>(Settings::INI::COLOR_BENEFICIAL_WEAK.data()).value_or(0xFF0000);
+		static long harmfulStrong = Settings::INI::GetSetting<long>(Settings::INI::COLOR_HARMFUL_STRONG.data()).value_or(0x00FF00);
+		static long harmfulWeak = Settings::INI::GetSetting<long>(Settings::INI::COLOR_HARMFUL_WEAK.data()).value_or(0xFF0000);
+
+		RE::GFxValue htmlText;
+		RE::GFxValue text;
+		if (!val.GetMember("htmlText", &htmlText)) {
+			return;
+		}
+		if (!val.GetMember("text", &text)) {
+			return;
+		}
+
+		std::string raw = htmlText.GetString();
+		std::string effectName = text.GetString();
+
+		long colorRaw = 0xFF0000;
+		std::string notation;
+		if (harmful && strong) {
+			notation = " [++]";
+			colorRaw = harmfulStrong;
+		}
+		else if (harmful && !strong) {
+			notation = " [--]";
+			colorRaw = harmfulWeak;
+		}
+		else if (!harmful && strong) {
+			notation = " [++]";
+			colorRaw = beneficialStrong;
+		}
+		else {
+			notation = " [--]";
+			colorRaw = beneficialWeak;
+		}
+
+		//if (appendAsSuperscript) {
+		//	notation = "<span baselineShift='superscript'>" + notation + "</span>";
+		//}
+		if (useAdditionalColors) {
+			notation = fmt::format("<font color='#{:06X}'>{}</font>", colorRaw, notation);
+		}
+
+		clib_util::string::replace_first_instance(raw, effectName, fmt::format("{}{}", effectName, notation));
+		htmlText.SetString(raw);
+		val.SetMember("htmlText", htmlText);
+	}
+
 	static void ProcessIngredientIfNeeded(RE::GFxValue& a_itemInfo, 
 		RE::IngredientItem* a_ingredient) 
 	{
@@ -51,9 +106,23 @@ namespace Hooks {
 			}
 			const float mag = currentEffect->GetMagnitude();
 			const float baseMag = IngredientData::GetAverageEffectMagnitude(currentBaseEffect);
+			if (mag == baseMag) { // Potentially could backfire due to float inaccuracy, but works for vanilla.
+				continue;
+			}
 
 			int color = 0xFFFFFF;
 			bool harmful = IsEffectHarmful(currentBaseEffect);
+			std::string labelName = "EffectLabel" + std::to_string(i);
+			if (!a_itemInfo.GetMember(labelName.c_str(), &effectLabel)) {
+				LOG_DEBUG("Couldn't get {}"sv, labelName);
+				continue;
+			}
+
+			if (useSimpleIndicators) {
+				HandleSimpleIndicator(effectLabel, harmful, mag > baseMag);
+				continue;
+			}
+
 			if (harmful && mag > baseMag) {
 				color = harmfulStrong;
 			}
@@ -71,11 +140,6 @@ namespace Hooks {
 				continue;
 			}
 
-			std::string labelName = "EffectLabel" + std::to_string(i);
-			if (!a_itemInfo.GetMember(labelName.c_str(), &effectLabel)) {
-				LOG_DEBUG("Couldn't get {}"sv, labelName);
-				continue;
-			}
 			if (!effectLabel.SetMember("textColor", color)) {
 				LOG_DEBUG("Couldn't set color."sv);
 			}

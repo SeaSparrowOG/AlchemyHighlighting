@@ -46,7 +46,7 @@ namespace Settings
 			bool OverrideSettings();
 		};
 
-		inline static constexpr const std::uint8_t EXPECTED_COUNT = 11u;
+		inline static constexpr const std::uint8_t EXPECTED_COUNT = 17u;
 		inline static constexpr const std::string_view COLOR_BENEFICIAL_STRONG = "Colors|iBeneficialStrong"sv;
 		inline static constexpr const std::string_view COLOR_BENEFICIAL_WEAK = "Colors|iBeneficialWeak"sv;
 		inline static constexpr const std::string_view COLOR_HARMFUL_STRONG = "Colors|iHarmfullStrong"sv;
@@ -59,7 +59,14 @@ namespace Settings
 		inline static constexpr const std::string_view ENABLED_MENUS_GIFT = "EnabledMenus|bEnableInGift"sv;
 
 		inline static constexpr const std::string_view ENABLE_UNKNOWN = "General|bEnableForUnknownEffects"sv;
-		inline static constexpr const std::string_view SIMPLE_INDICATORS = "General|bUseSimpleIndicators"sv;
+
+		inline static constexpr const std::string_view SIMPLE_INDICATORS = "SimpleIndicators|bUseSimpleIndicators"sv;
+		inline static constexpr const std::string_view SIMPLE_INDICATORS_COLORIZE = "SimpleIndicators|bSimpleIndicatorsUseColors"sv;
+		inline static constexpr const std::string_view SIMPLE_INDICATORS_HARMFUL_STRONG = "SimpleIndicators|sStrongHarmful"sv;
+		inline static constexpr const std::string_view SIMPLE_INDICATORS_HARMFUL_WEAK = "SimpleIndicators|sWeakHarmful"sv;
+		inline static constexpr const std::string_view SIMPLE_INDICATORS_BENEFICIAL_STRONG = "SimpleIndicators|sStrongBeneficial"sv;
+		inline static constexpr const std::string_view SIMPLE_INDICATORS_BENEFICIAL_WEAK = "SimpleIndicators|sWeakBeneficial"sv;
+		//inline static constexpr const std::string_view SIMPLE_INDICATORS_SUPERSCRIPT = "SimpleIndicators|bAppendAsSuperscript"sv;
 
 		inline static constexpr const std::array<std::string_view, EXPECTED_COUNT> EXPECTED_SETTINGS = {
 			COLOR_BENEFICIAL_STRONG,
@@ -74,7 +81,14 @@ namespace Settings
 			ENABLED_MENUS_GIFT,
 
 			ENABLE_UNKNOWN,
-			SIMPLE_INDICATORS
+
+			SIMPLE_INDICATORS,
+			SIMPLE_INDICATORS_COLORIZE,
+			SIMPLE_INDICATORS_HARMFUL_STRONG,
+			SIMPLE_INDICATORS_HARMFUL_WEAK,
+			SIMPLE_INDICATORS_BENEFICIAL_STRONG,
+			SIMPLE_INDICATORS_BENEFICIAL_WEAK,
+			//SIMPLE_INDICATORS_SUPERSCRIPT
 		};
 
 		template <typename T>
