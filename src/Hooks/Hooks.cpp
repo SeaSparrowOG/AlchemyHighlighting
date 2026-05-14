@@ -230,17 +230,32 @@ namespace Hooks {
 		RE::GFxValue ItemCard_mc;
 		RE::GFxValue itemInfo;
 		RE::GFxValue ItemCardFadeHolder_mc;
-		if (!root->GetMember("ItemCard_mc", &ItemCard_mc)) {
-			LOG_DEBUG("Failed to get ItemCard_mc");
-			return;
+
+		bool useSkyUIPaths = false;
+		auto* dh = RE::TESDataHandler::GetSingleton();
+		if (dh && dh->LookupModByName("SkyUI_SE.esp")) {
+			useSkyUIPaths = true;
 		}
-		if (!ItemCard_mc.GetMember("itemInfo", &itemInfo)) {
-			LOG_DEBUG("Failed to get itemInfo");
-			return;
+
+		if (useSkyUIPaths) {
+			if (!root->GetMember("itemCard", &ItemCard_mc)) {
+				LOG_DEBUG("Failed to get itemCard");
+				return;
+			}
+			if (!ItemCard_mc.GetMember("itemInfo", &itemInfo)) {
+				LOG_DEBUG("Failed to get itemInfo");
+				return;
+			}
 		}
-		if (itemInfo.IsUndefined()) {
-			LOG_DEBUG("Undefined."sv);
-			return;
+		else {
+			if (!root->GetMember("ItemCard_mc", &ItemCard_mc)) {
+				LOG_DEBUG("Failed to get ItemCard_mc");
+				return;
+			}
+			if (!ItemCard_mc.GetMember("itemInfo", &itemInfo)) {
+				LOG_DEBUG("Failed to get itemInfo");
+				return;
+			}
 		}
 		ProcessIngredientIfNeeded(ItemCard_mc, ingr);
 	}
