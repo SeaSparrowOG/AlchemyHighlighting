@@ -18,6 +18,38 @@ namespace Hooks {
 		return (known & (std::uint16_t(1) << index)) > 0; // I hate this, but the compiler hates the simpler form so tomatoh tomahto.
 	}
 
+	static bool PlayerHasNeededPerk() {
+		static bool requirePerk = Settings::INI::GetSetting<bool>(Settings::INI::PERK_REQUIRED.data()).value_or(false);
+		static auto perkFormRaw = Settings::INI::GetSetting<std::string>(Settings::INI::PERK_NEEDED.data()).value_or("Skyrim.esm|0x58218");
+
+		if (!requirePerk) {
+			return true;
+		}
+
+		auto* player = RE::PlayerCharacter::GetSingleton();
+		auto* dh = RE::TESDataHandler::GetSingleton();
+		if (!dh || !player) {
+			return true;
+		}
+
+		auto parts = clib_util::string::split(perkFormRaw, "|");
+		if (parts.size() != 2 ||
+			!clib_util::string::is_only_hex(parts[1])) {
+			return true;
+		}
+
+		if (!dh->LookupModByName(parts[0])) {
+			return true;
+		}
+
+		auto perkID = clib_util::string::to_num<RE::FormID>(parts[1], true);
+		auto* perk = dh->LookupForm<RE::BGSPerk>(perkID, parts[0]);
+		if (!perk) {
+			return true;
+		}
+		return player->HasPerk(perk);
+	}
+
 	static void HandleSimpleIndicator(RE::GFxValue& val, bool harmful, bool strong) {
 		static bool useAdditionalColors = Settings::INI::GetSetting<bool>(Settings::INI::SIMPLE_INDICATORS_COLORIZE.data()).value_or(false);
 		//static bool appendAsSuperscript = Settings::INI::GetSetting<bool>(Settings::INI::SIMPLE_INDICATORS_SUPERSCRIPT.data()).value_or(false);
@@ -86,6 +118,10 @@ namespace Hooks {
 		static bool useSimpleIndicators = Settings::INI::GetSetting<bool>(Settings::INI::SIMPLE_INDICATORS.data()).value_or(false);
 		static bool onlyWeak = Settings::INI::GetSetting<bool>(Settings::INI::ONLY_NEGATIVES.data()).value_or(false);
 		static bool onlyStrong = Settings::INI::GetSetting<bool>(Settings::INI::ONLY_POSITIVES.data()).value_or(false);
+		
+		if (!PlayerHasNeededPerk()) {
+			return;
+		}
 
 		auto& alciEffects = a_ingredient->effects;
 		if (alciEffects.empty() || alciEffects.size() != 4) {
