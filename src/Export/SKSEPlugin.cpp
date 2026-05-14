@@ -93,6 +93,5 @@ extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Load(const SKSE::LoadInterface * a_
 		logger::warn("Potentially loaded with bad JSON configs due to debug mode."sv);
 #endif
 	}
-	SECTION_SEPARATOR;
 	return true;
 }

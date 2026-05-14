@@ -282,7 +282,6 @@ namespace Hooks {
 	}
 
 	bool Install() {
-		SECTION_SEPARATOR;
 		logger::info("Installing hooks..."sv);
 		std::size_t allocSize = 0u;
 		if (Settings::INI::ShouldInstallHook(Settings::INI::ENABLED_MENUS_ALCHEMY.data())) {
