@@ -229,7 +229,6 @@ namespace Hooks {
 
 		RE::GFxValue ItemCard_mc;
 		RE::GFxValue itemInfo;
-		RE::GFxValue ItemCardFadeHolder_mc;
 
 		bool useSkyUIPaths = false;
 		auto* dh = RE::TESDataHandler::GetSingleton();
