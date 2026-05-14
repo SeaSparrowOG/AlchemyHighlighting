@@ -46,7 +46,7 @@ namespace Settings
 			bool OverrideSettings();
 		};
 
-		inline static constexpr const std::uint8_t EXPECTED_COUNT = 17u;
+		inline static constexpr const std::uint8_t EXPECTED_COUNT = 18u;
 		inline static constexpr const std::string_view COLOR_BENEFICIAL_STRONG = "Colors|iBeneficialStrong"sv;
 		inline static constexpr const std::string_view COLOR_BENEFICIAL_WEAK = "Colors|iBeneficialWeak"sv;
 		inline static constexpr const std::string_view COLOR_HARMFUL_STRONG = "Colors|iHarmfullStrong"sv;
@@ -59,6 +59,8 @@ namespace Settings
 		inline static constexpr const std::string_view ENABLED_MENUS_GIFT = "EnabledMenus|bEnableInGift"sv;
 
 		inline static constexpr const std::string_view ENABLE_UNKNOWN = "General|bEnableForUnknownEffects"sv;
+		inline static constexpr const std::string_view ONLY_NEGATIVES = "General|bEnableOnlyForWeakerEffects"sv;
+		inline static constexpr const std::string_view ONLY_POSITIVES = "General|bEnableOnlyForStrongerEffects"sv;
 
 		inline static constexpr const std::string_view SIMPLE_INDICATORS = "SimpleIndicators|bUseSimpleIndicators"sv;
 		inline static constexpr const std::string_view SIMPLE_INDICATORS_COLORIZE = "SimpleIndicators|bSimpleIndicatorsUseColors"sv;
@@ -81,6 +83,8 @@ namespace Settings
 			ENABLED_MENUS_GIFT,
 
 			ENABLE_UNKNOWN,
+			ONLY_NEGATIVES,
+			ONLY_POSITIVES,
 
 			SIMPLE_INDICATORS,
 			SIMPLE_INDICATORS_COLORIZE,

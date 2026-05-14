@@ -6,6 +6,16 @@
 
 namespace Settings::INI
 {
+	static std::string strip_outer_quotes(const std::string& s) {
+		if (s.size() < 2) return s;
+		bool starts_with_quote = (s.front() == '"');
+		bool ends_with_quote = (s.back() == '"');
+		if (starts_with_quote && ends_with_quote) {
+			return s.substr(1, s.size() - 2);
+		}
+		return s;
+	}
+
 	bool Read() {
 		logger::info("Reading INI settings..."sv);
 		auto* holder = Holder::GetSingleton();
@@ -65,7 +75,7 @@ namespace Settings::INI
 
 					const auto settingType = settingKeyName.substr(0, 1);
 					if (settingType == "s") {
-						const std::string value = ini.GetValue(section.pItem, key.pItem);
+						const std::string value = strip_outer_quotes(ini.GetValue(section.pItem, key.pItem));
 						if (value.empty()) {
 							logger::error("  >Invalid value in string setting {}."sv, foundSetting);
 							encounteredError = true;

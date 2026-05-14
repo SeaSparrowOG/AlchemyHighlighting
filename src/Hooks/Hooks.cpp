@@ -45,19 +45,19 @@ namespace Hooks {
 		long colorRaw = 0xFF0000;
 		std::string notation;
 		if (harmful && strong) {
-			notation = " [++]";
+			notation = harmfulStrongText;
 			colorRaw = harmfulStrong;
 		}
 		else if (harmful && !strong) {
-			notation = " [--]";
+			notation = harmfulWeakText;
 			colorRaw = harmfulWeak;
 		}
 		else if (!harmful && strong) {
-			notation = " [++]";
+			notation = beneficialStrongText;
 			colorRaw = beneficialStrong;
 		}
 		else {
-			notation = " [--]";
+			notation = beneficialWeakText;
 			colorRaw = beneficialWeak;
 		}
 
@@ -84,6 +84,8 @@ namespace Hooks {
 		static long harmfulWeak = Settings::INI::GetSetting<long>(Settings::INI::COLOR_HARMFUL_WEAK.data()).value_or(0xFF0000);
 		static bool allowUnknown = Settings::INI::GetSetting<bool>(Settings::INI::ENABLE_UNKNOWN.data()).value_or(false);
 		static bool useSimpleIndicators = Settings::INI::GetSetting<bool>(Settings::INI::SIMPLE_INDICATORS.data()).value_or(false);
+		static bool onlyWeak = Settings::INI::GetSetting<bool>(Settings::INI::ONLY_NEGATIVES.data()).value_or(false);
+		static bool onlyStrong = Settings::INI::GetSetting<bool>(Settings::INI::ONLY_POSITIVES.data()).value_or(false);
 
 		auto& alciEffects = a_ingredient->effects;
 		if (alciEffects.empty() || alciEffects.size() != 4) {
@@ -112,6 +114,10 @@ namespace Hooks {
 
 			int color = 0xFFFFFF;
 			bool harmful = IsEffectHarmful(currentBaseEffect);
+			if ((onlyWeak && !harmful) || (onlyStrong && harmful)) {
+				continue;
+			}
+
 			std::string labelName = "EffectLabel" + std::to_string(i);
 			if (!a_itemInfo.GetMember(labelName.c_str(), &effectLabel)) {
 				LOG_DEBUG("Couldn't get {}"sv, labelName);
