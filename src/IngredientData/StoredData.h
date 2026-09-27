@@ -9,7 +9,7 @@ namespace IngredientData
 		Weaker
 	};
 
-	class StoredData : public REX::Singleton<StoredData>
+	class StoredData : public REX::TSingleton<StoredData>
 	{
 	public:
 		[[nodiscard]] bool  WarmCache();
@@ -211,7 +211,7 @@ namespace IngredientData
 	[[nodiscard]] inline bool Initialize() {
 		static auto* data = StoredData::GetSingleton();
 		if (!data) {
-			logger::critical("  >Failed to get internal cache manager."sv);
+			REX::CRITICAL("  >Failed to get internal cache manager."sv);
 			return false;
 		}
 		return data->WarmCache();

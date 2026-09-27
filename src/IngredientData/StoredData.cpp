@@ -9,13 +9,13 @@ namespace IngredientData
 
 		auto* dh = RE::TESDataHandler::GetSingleton();
 		if (!dh) {
-			logger::critical("  >Failed to get the game's Data Handler."sv);
+			REX::CRITICAL("  >Failed to get the game's Data Handler."sv);
 			return false;
 		}
 
 		auto& ingredients = dh->GetFormArray<RE::IngredientItem>();
 		if (ingredients.empty()) {
-			logger::warn("  >Ingredient array appears empty - likely an error."sv);
+			REX::WARN("  >Ingredient array appears empty - likely an error."sv);
 			return true;
 		}
 
@@ -86,15 +86,15 @@ namespace IngredientData
 
 		auto& jsonSettings = Settings::JSON::Holder::GetSingleton()->GetConfigs();
 		if (jsonSettings.empty()) {
-			logger::info("  >No runtime settings found."sv);
+			REX::INFO("  >No runtime settings found."sv);
 			return true;
 		}
 
-		logger::info("  >Parsing runtime settings..."sv);
+		REX::INFO("  >Parsing runtime settings..."sv);
 		for (const auto& [name, config] : jsonSettings) {
-			logger::info("    - {}"sv, name);
+			REX::INFO("    - {}"sv, name);
 			if (!config.isObject()) {
-				logger::critical("      Configuration is not an object - aborting load."sv);
+				REX::CRITICAL("      Configuration is not an object - aborting load."sv);
 				return false;
 			}
 
@@ -113,7 +113,7 @@ namespace IngredientData
 						case QueryResult::GenericFailure:
 						case QueryResult::MissingPo3Tweaks:
 						case QueryResult::WrongFormtype:
-							logger::critical("      Failed to parse form {} with error: {}"sv, stringForm, QueryResultToString(rawForm.status));
+							REX::CRITICAL("      Failed to parse form {} with error: {}"sv, stringForm, QueryResultToString(rawForm.status));
 							return false;
 						default:
 							break;
@@ -134,7 +134,7 @@ namespace IngredientData
 							case QueryResult::GenericFailure:
 							case QueryResult::MissingPo3Tweaks:
 							case QueryResult::WrongFormtype:
-								logger::critical("      Failed to parse form {} with error: {}"sv, stringForm, QueryResultToString(rawForm.status));
+								REX::CRITICAL("      Failed to parse form {} with error: {}"sv, stringForm, QueryResultToString(rawForm.status));
 								return false;
 							default:
 								break;
@@ -143,7 +143,7 @@ namespace IngredientData
 					}
 				}
 				else {
-					logger::critical("      IgnoredEffects is neither an array nor a string."sv);
+					REX::CRITICAL("      IgnoredEffects is neither an array nor a string."sv);
 					return false;
 				}
 			}
