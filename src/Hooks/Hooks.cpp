@@ -282,26 +282,7 @@ namespace Hooks {
 	}
 
 	bool Install() {
-		logger::info("Installing hooks..."sv);
-		std::size_t allocSize = 0u;
-		if (Settings::INI::ShouldInstallHook(Settings::INI::ENABLED_MENUS_ALCHEMY.data())) {
-			allocSize += 14u; // 1 CALL
-		}
-		if (Settings::INI::ShouldInstallHook(Settings::INI::ENABLED_MENUS_INVENTORY.data())) {
-			allocSize += 14u; // 1 CALL
-		}
-		if (Settings::INI::ShouldInstallHook(Settings::INI::ENABLED_MENUS_BARTER.data())) {
-			allocSize += 14u; // 1 CALL
-		}
-		if (Settings::INI::ShouldInstallHook(Settings::INI::ENABLED_MENUS_CONTAINER.data())) {
-			allocSize += 14u; // 1 CALL
-		}
-		if (Settings::INI::ShouldInstallHook(Settings::INI::ENABLED_MENUS_GIFT.data())) {
-			allocSize += 14u; // 1 CALL
-		}
-
-		SKSE::AllocTrampoline(allocSize);
-
+		REX::INFO("Installing hooks..."sv);
 		bool success = true;
 		success &= UpdateItemFocusHook::Install();
 		success &= RequestInventoryMenuItemCardHook::InstallRequestInventoryMenuItemCardHook();
@@ -312,19 +293,19 @@ namespace Hooks {
 	}
 
 	inline bool UpdateItemFocusHook::Install() {
-		logger::info("  >Installing Alchemy Menu hook..."sv);
+		REX::INFO("  >Installing Alchemy Menu hook..."sv);
 		if (!Settings::INI::ShouldInstallHook(Settings::INI::ENABLED_MENUS_ALCHEMY.data())) {
-			logger::info("    - User chose not to install Alchemy Menu hook."sv);
+			REX::INFO("    - User chose not to install Alchemy Menu hook."sv);
 			return true;
 		}
-
+		
 		REL::Relocation<std::uintptr_t> target{ RE::Offset::CraftingSubmenu::SetSelectedItem, 0x13 };
-		if (!REL::make_pattern<"E9">().match(target.address())) {
-			logger::info("    Failed to validate pattern. Aborting load."sv);
+		if (!REL::Pattern<"E9">().match(target.address())) {
+			REX::INFO("    Failed to validate pattern. Aborting load."sv);
 			return false;
 		}
-		auto& trampoline = SKSE::GetTrampoline();
-		_updateItemFocus = trampoline.write_branch<5>(target.address(), &UpdateItemFocus);
+		auto& trampoline = REL::GetTrampoline();
+		_updateItemFocus = trampoline.write_jmp<5>(target.address(), &UpdateItemFocus);
 		return true;
 	}
 
@@ -363,19 +344,19 @@ namespace Hooks {
 
 	inline bool RequestInventoryMenuItemCardHook::InstallRequestInventoryMenuItemCardHook()
 	{
-		logger::info("  >Installing Inventory Menu hook..."sv);
+		REX::INFO("  >Installing Inventory Menu hook..."sv);
 		if (!Settings::INI::ShouldInstallHook(Settings::INI::ENABLED_MENUS_INVENTORY.data())) {
-			logger::info("    - User chose not to install Inventory Meny hook."sv);
+			REX::INFO("    - User chose not to install Inventory Meny hook."sv);
 			return true;
 		}
 
 		REL::Relocation<std::uintptr_t> target{ RE::Offset::InventoryMenu::RequestItemCardInfo, 0x7A };
-		if (!REL::make_pattern<"E8">().match(target.address())) {
-			logger::info("    Failed to validate pattern. Aborting load."sv);
+		if (!REL::Pattern<"E8">().match(target.address())) {
+			REX::INFO("    Failed to validate pattern. Aborting load."sv);
 			return false;
 		}
 
-		auto& trampoline = SKSE::GetTrampoline();
+		auto& trampoline = REL::GetTrampoline();
 		_inventoryShowItemData = trampoline.write_call<5>(target.address(), &InventoryShowItemData);
 		return true;
 	}
@@ -398,19 +379,19 @@ namespace Hooks {
 
 	inline bool RequestContainerMenuItemCardHook::InstallRequestContainerMenuItemCardHook()
 	{
-		logger::info("  >Installing Container Menu hook..."sv);
+		REX::INFO("  >Installing Container Menu hook..."sv);
 		if (!Settings::INI::ShouldInstallHook(Settings::INI::ENABLED_MENUS_CONTAINER.data())) {
-			logger::info("    - User chose not to install Container Meny hook."sv);
+			REX::INFO("    - User chose not to install Container Meny hook."sv);
 			return true;
 		}
 
 		REL::Relocation<std::uintptr_t> target{ RE::Offset::ContainerMenu::RequestItemCardInfo, 0xB2 };
-		if (!REL::make_pattern<"E8">().match(target.address())) {
-			logger::info("    Failed to validate pattern. Aborting load."sv);
+		if (!REL::Pattern<"E8">().match(target.address())) {
+			REX::INFO("    Failed to validate pattern. Aborting load."sv);
 			return false;
 		}
 
-		auto& trampoline = SKSE::GetTrampoline();
+		auto& trampoline = REL::GetTrampoline();
 		_containerShowItemData = trampoline.write_call<5>(target.address(), &ContainerShowItemData);
 		return true;
 	}
@@ -432,19 +413,19 @@ namespace Hooks {
 
 	inline bool RequestBarterMenuItemCardHook::InstallRequestBarterMenuItemCardHook()
 	{
-		logger::info("  >Installing Barter Menu hook..."sv);
+		REX::INFO("  >Installing Barter Menu hook..."sv);
 		if (!Settings::INI::ShouldInstallHook(Settings::INI::ENABLED_MENUS_BARTER.data())) {
-			logger::info("    - User chose not to install Barter Meny hook."sv);
+			REX::INFO("    - User chose not to install Barter Meny hook."sv);
 			return true;
 		}
 
 		REL::Relocation<std::uintptr_t> target{ RE::Offset::BarterMenu::RequestItemCardInfo, 0x80 };
-		if (!REL::make_pattern<"E8">().match(target.address())) {
-			logger::info("    Failed to validate pattern. Aborting load."sv);
+		if (!REL::Pattern<"E8">().match(target.address())) {
+			REX::INFO("    Failed to validate pattern. Aborting load."sv);
 			return false;
 		}
 
-		auto& trampoline = SKSE::GetTrampoline();
+		auto& trampoline = REL::GetTrampoline();
 		_barterShowItemData = trampoline.write_call<5>(target.address(), &BarterShowItemData);
 		return true;
 	}
@@ -466,19 +447,19 @@ namespace Hooks {
 
 	inline bool RequestGiftMenuItemCardHook::InstallRequestGiftMenuItemCardHook()
 	{
-		logger::info("  >Installing Gift Menu hook..."sv);
+		REX::INFO("  >Installing Gift Menu hook..."sv);
 		if (!Settings::INI::ShouldInstallHook(Settings::INI::ENABLED_MENUS_BARTER.data())) {
-			logger::info("    - User chose not to install Gift Meny hook."sv);
+			REX::INFO("    - User chose not to install Gift Meny hook."sv);
 			return true;
 		}
 
 		REL::Relocation<std::uintptr_t> target{ RE::Offset::GiftMenu::RequestItemCardInfo, 0x7A };
-		if (!REL::make_pattern<"E8">().match(target.address())) {
-			logger::info("    Failed to validate pattern. Aborting load."sv);
+		if (!REL::Pattern<"E8">().match(target.address())) {
+			REX::INFO("    Failed to validate pattern. Aborting load."sv);
 			return false;
 		}
 
-		auto& trampoline = SKSE::GetTrampoline();
+		auto& trampoline = REL::GetTrampoline();
 		_giftShowItemData = trampoline.write_call<5>(target.address(), &GiftShowItemData);
 		return true;
 	}
